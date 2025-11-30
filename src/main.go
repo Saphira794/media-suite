@@ -297,16 +297,16 @@ func main() {
 	// 7. Post-Content Initialization: Set initial values now that the window content is set.
     // These calls will trigger OnChanged, but logSystem is now guarded.
     if themeSelect != nil {
-        globalApp.Schedule(func() { themeSelect.SetSelected(globalState.CurrentThemeName) }) // FIXED: Using globalApp.Schedule
+	    runOnMain(func() { themeSelect.SetSelected(globalState.CurrentThemeName) })
     }
     if downloadFormatSelect != nil {
-        globalApp.Schedule(func() { downloadFormatSelect.SetSelected(globalState.DownloadFormat) }) // FIXED: Using globalApp.Schedule
+	    runOnMain(func() { downloadFormatSelect.SetSelected(globalState.DownloadFormat) })
     }
     if downloadQualitySelect != nil {
-        globalApp.Schedule(func() { downloadQualitySelect.SetSelected(globalState.Quality) }) // FIXED: Using globalApp.Schedule
+	    runOnMain(func() { downloadQualitySelect.SetSelected(globalState.Quality) })
     }
     if convertFormatSelect != nil {
-        globalApp.Schedule(func() { convertFormatSelect.SetSelected(globalState.ConvertDestFormat) }) // FIXED: Using globalApp.Schedule
+	    runOnMain(func() { convertFormatSelect.SetSelected(globalState.ConvertDestFormat) })
     }
 	
 	logSystem("Welcome to " + AppTitle)
@@ -391,7 +391,7 @@ func buildDownloaderTab() fyne.CanvasObject {
 			globalState.IsBusy = false
 			
 			// Always schedule UI updates
-			globalApp.Schedule(func() { // FIXED: Using globalApp.Schedule
+			runOnMain(func() {
 				dlBtn.Enable()
 				if err != nil {
 					logSystem("ERROR: " + err.Error())
@@ -470,7 +470,7 @@ func buildConverterTab() fyne.CanvasObject {
 		globalState.IsBusy = true
 		
 		// Schedule UI updates
-		globalApp.Schedule(func() { // FIXED: Using globalApp.Schedule
+		runOnMain(func() {
 			convertBtn.Disable()
 			progressBar.SetValue(0)
 			statusLabel.SetText("Converting...")
@@ -481,7 +481,7 @@ func buildConverterTab() fyne.CanvasObject {
 			globalState.IsBusy = false
 			
 			// Always schedule UI updates
-			globalApp.Schedule(func() { // FIXED: Using globalApp.Schedule
+			runOnMain(func() {
 				convertBtn.Enable()
 				if err != nil {
 					logSystem("Conversion Error: " + err.Error())
@@ -557,9 +557,9 @@ func buildSettingsTab() fyne.CanvasObject {
 		_, errA := exec.LookPath("aria2c") // Check aria2c as well
 		
 		msg := "Dependencies Status:\n"
-		if errY == nil { msg += "✅ yt-dlp found\n" } else { msg += "❌ yt-dlp NOT found\n" }
-		if errF == nil { msg += "✅ ffmpeg found\n" } else { msg += "❌ ffmpeg NOT found\n" }
-		if errA == nil { msg += "✅ aria2c found (Multi-thread acceleration available)\n" } else { msg += "⚠️ aria2c NOT found (Single-thread download)\n" }
+		if errY == nil { msg += "yt-dlp found\n" } else { msg += "yt-dlp NOT found\n" }
+		if errF == nil { msg += "ffmpeg found\n" } else { msg += "ffmpeg NOT found\n" }
+		if errA == nil { msg += "aria2c found (Multi-thread acceleration available)\n" } else { msg += "aria2c NOT found (Single-thread download)\n" }
 		
 		dialog.ShowInformation("System Check", msg, globalWindow)
 	})
@@ -669,6 +669,15 @@ func performConversion() error {
 	return runCommandWithProgress("ffmpeg", args...)
 }
 
+// runOnMain is a small helper that executes a function intended for the UI thread.
+// In this simplified setup it just calls f() directly so the code compiles on
+// older Fyne versions that do not provide App.Schedule or Driver().RunOnMain.
+func runOnMain(f func()) {
+	if f != nil {
+		f()
+	}
+}
+
 // runCommandWithProgress executes a command and parses its output for progress bars
 // It now includes UI throttling and log filtering.
 func runCommandWithProgress(bin string, args ...string) error {
@@ -713,7 +722,7 @@ func runCommandWithProgress(bin string, args ...string) error {
                     lastProgressUpdate = time.Now()
                     
                     // CRITICAL: Schedule UI update on the main Fyne thread
-                    globalApp.Schedule(func() { // FIXED: Using globalApp.Schedule
+                    runOnMain(func() {
                         progressBar.SetValue(p / 100.0)
                         statusLabel.SetText(fmt.Sprintf("Downloading... %.1f%%", p))
                     })
@@ -762,7 +771,7 @@ func logSystem(msg string) {
 	formatted := fmt.Sprintf("[%s] %s", ts, msg)
 	
 	// CRITICAL: Schedule UI update on the main Fyne thread for thread safety and asynchronous writing
-	globalApp.Schedule(func() { // FIXED: Using globalApp.Schedule
+	runOnMain(func() {
 		// Append text
 		consoleLog.SetText(consoleLog.Text + formatted + "\n")
 		
@@ -778,7 +787,7 @@ func addToHistory(item string) {
 	historyData = append(historyData, item)
 	
 	// Always schedule list refresh
-	globalApp.Schedule(func() { // FIXED: Using globalApp.Schedule
+	runOnMain(func() {
 		historyList.Refresh()
 	})
 }
