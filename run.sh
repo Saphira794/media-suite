@@ -2,11 +2,11 @@
 
 set -euo pipefail
 
-APP_NAME="yt-dlgui"
+APP_NAME="media-suite"
 INSTALL_DIR="/usr/bin"
 SRC_DIR="./src"
 BUILD_DIR="./build"
-GO_MOD_NAME="yt-dlgui"
+GO_MOD_NAME="media-suite"
 
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
