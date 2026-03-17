@@ -14,7 +14,7 @@ RED='\033[0;31m'
 NC='\033[0m'
 
 echo -e "${BLUE}==========================================${NC}"
-echo -e "${BLUE}    yt-dlgui | Catppuccin Installer       ${NC}"
+echo -e "${BLUE}    media-suite | Catppuccin Installer       ${NC}"
 echo -e "${BLUE}==========================================${NC}"
 
 echo -e "${GREEN}[+] Checking System Dependencies...${NC}"
