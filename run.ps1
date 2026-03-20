@@ -1,5 +1,3 @@
-
-
 $APP_NAME = "media-suite"
 $INSTALL_DIR = "C:\Program Files\$APP_NAME"
 $SRC_DIR = ".\src"
