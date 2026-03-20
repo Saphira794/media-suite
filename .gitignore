@@ -1,0 +1,17 @@
+# Build files
+*.exe
+*.out
+
+# Logs
+*.log
+
+# Backup files
+*.bak
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Go build/cache
+bin/
+dist/
