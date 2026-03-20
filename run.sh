@@ -14,7 +14,11 @@ RED='\033[0;31m'
 NC='\033[0m'
 
 echo -e "${BLUE}==========================================${NC}"
+<<<<<<< HEAD
 echo -e "${BLUE}           media-suite  Installer       ${NC}"
+=======
+echo -e "${BLUE}    media-suite | Catppuccin Installer       ${NC}"
+>>>>>>> 384a0a11dc78403475f1423e4ae5f67d7082ac0f
 echo -e "${BLUE}==========================================${NC}"
 
 echo -e "${GREEN}[+] Checking System Dependencies...${NC}"
@@ -58,4 +62,8 @@ fi
 
 echo -e "${BLUE}==========================================${NC}"
 echo -e "${BLUE}Done! Run the app by typing: $APP_NAME${NC}"
+<<<<<<< HEAD
 echo -e "${BLUE}==========================================${NC}"
+=======
+echo -e "${BLUE}==========================================${NC}"
+>>>>>>> 384a0a11dc78403475f1423e4ae5f67d7082ac0f

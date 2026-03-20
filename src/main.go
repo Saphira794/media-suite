@@ -5,27 +5,57 @@ import (
 	"encoding/json"
 	"fmt"
 	"image/color"
+<<<<<<< HEAD
 	"os"
 	"os/exec"
+=======
+	"net/url"
+	"os"
+	"os/exec"
+	"path/filepath"
+>>>>>>> 384a0a11dc78403475f1423e4ae5f67d7082ac0f
 	"regexp"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
+<<<<<<< HEAD
 	fyne "fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
+=======
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/layout"
+>>>>>>> 384a0a11dc78403475f1423e4ae5f67d7082ac0f
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
 
+<<<<<<< HEAD
 const (
 	AppTitle       = "Catppuccin Media Suite"
 	AppVersion     = "2.0.3-Optimized"
 	DefaultPadding = 10
 )
 
+=======
+// =================================================================================
+// CONSTANTS & CONFIGURATION
+// =================================================================================
+
+const (
+	AppTitle       = "Catppuccin Media Suite"
+	AppVersion     = "2.0.3-Optimized" // Updated version
+	DefaultPadding = 10
+)
+
+// CatppuccinPalette defines the colors for a specific flavor
+>>>>>>> 384a0a11dc78403475f1423e4ae5f67d7082ac0f
 type CatppuccinPalette struct {
 	Name      string
 	Rosewater string
@@ -56,6 +86,14 @@ type CatppuccinPalette struct {
 	Crust     string
 }
 
+<<<<<<< HEAD
+=======
+// =================================================================================
+// THEME ENGINE
+// =================================================================================
+
+// ThemeManager handles switching between Catppuccin flavors
+>>>>>>> 384a0a11dc78403475f1423e4ae5f67d7082ac0f
 type ThemeManager struct {
 	CurrentPalette CatppuccinPalette
 	Variant        fyne.ThemeVariant
@@ -84,6 +122,10 @@ func (t *ThemeManager) SetFlavor(flavor string) {
 	}
 }
 
+<<<<<<< HEAD
+=======
+// Fyne Theme Interface Implementation
+>>>>>>> 384a0a11dc78403475f1423e4ae5f67d7082ac0f
 func (t *ThemeManager) Color(n fyne.ThemeColorName, v fyne.ThemeVariant) color.Color {
 	p := t.CurrentPalette
 
@@ -171,6 +213,7 @@ var PaletteLatte = CatppuccinPalette{
 
 type AppState struct {
 	// Downloader State
+<<<<<<< HEAD
 	DownloadURL    string
 	DownloadFormat string // mp4, mp3, wav, thumbnail
 	Quality        string // best, 1080, 720, 480
@@ -180,6 +223,17 @@ type AppState struct {
 	EmbedThumbnail bool
 	EmbedSubs      bool
 	CustomArgs     string
+=======
+	DownloadURL      string
+	DownloadFormat   string // mp4, mp3, wav, thumbnail
+	Quality          string // best, 1080, 720, 480
+	DownloadPath     string
+	IsBusy           bool
+	EmbedMetadata    bool
+	EmbedThumbnail   bool
+	EmbedSubs        bool
+	CustomArgs       string
+>>>>>>> 384a0a11dc78403475f1423e4ae5f67d7082ac0f
 
 	// Converter State
 	ConvertSourceFile string
@@ -199,6 +253,7 @@ var globalTheme *ThemeManager
 
 // Widgets referenced globally to update UI
 var (
+<<<<<<< HEAD
 	consoleLog  *widget.Entry
 	progressBar *widget.ProgressBar
 	statusLabel *widget.Label
@@ -213,6 +268,22 @@ var (
 
 	// CRITICAL: Flag to prevent UI operations before window content is set.
 	isWindowReady bool
+=======
+	consoleLog    *widget.Entry
+	progressBar   *widget.ProgressBar
+	statusLabel   *widget.Label
+	historyList   *widget.List
+	historyData   []string
+    
+    // Global references for Select widgets to defer SetSelected calls
+	downloadFormatSelect *widget.Select
+	downloadQualitySelect *widget.Select
+	convertFormatSelect *widget.Select
+	themeSelect *widget.Select
+    
+    // CRITICAL: Flag to prevent UI operations before window content is set.
+    isWindowReady bool
+>>>>>>> 384a0a11dc78403475f1423e4ae5f67d7082ac0f
 )
 
 // =================================================================================
@@ -232,12 +303,21 @@ func main() {
 	// 3. Initialize State
 	wd, _ := os.Getwd()
 	globalState = AppState{
+<<<<<<< HEAD
 		DownloadFormat:    "Video (MP4)",
 		Quality:           "Best",
 		DownloadPath:      wd,
 		EmbedMetadata:     true,
 		EmbedThumbnail:    true,
 		CurrentThemeName:  "Mocha",
+=======
+		DownloadFormat: "Video (MP4)",
+		Quality:        "Best",
+		DownloadPath:   wd,
+		EmbedMetadata:  true,
+		EmbedThumbnail: true,
+		CurrentThemeName: "Mocha",
+>>>>>>> 384a0a11dc78403475f1423e4ae5f67d7082ac0f
 		ConvertDestFormat: "mp3",
 	}
 
@@ -255,6 +335,7 @@ func main() {
 	consoleLog.Disable()
 	consoleLog.TextStyle = fyne.TextStyle{Monospace: true}
 	consoleLog.SetPlaceHolder("System logs will appear here...")
+<<<<<<< HEAD
 
 	progressBar = widget.NewProgressBar()
 	progressBar.SetValue(0)
@@ -262,21 +343,38 @@ func main() {
 	statusLabel = widget.NewLabel("Ready")
 	statusLabel.Alignment = fyne.TextAlignCenter
 
+=======
+	
+	progressBar = widget.NewProgressBar()
+	progressBar.SetValue(0)
+	
+	statusLabel = widget.NewLabel("Ready")
+	statusLabel.Alignment = fyne.TextAlignCenter
+	
+>>>>>>> 384a0a11dc78403475f1423e4ae5f67d7082ac0f
 	// Create a scrollable container for the log to give it fixed height
 	logScroll := container.NewScroll(consoleLog)
 	logScroll.SetMinSize(fyne.NewSize(0, 150))
 
 	finalLayout := container.NewBorder(
+<<<<<<< HEAD
 		nil,
 		container.NewVBox(progressBar, statusLabel, logScroll),
 		nil,
 		nil,
+=======
+		nil, 
+		container.NewVBox(progressBar, statusLabel, logScroll), 
+		nil, 
+		nil, 
+>>>>>>> 384a0a11dc78403475f1423e4ae5f67d7082ac0f
 		mainTabs,
 	)
 
 	// 6. Set Content and Mark Ready
 	globalWindow.SetContent(finalLayout)
 	isWindowReady = true // Mark flag true AFTER SetContent is called
+<<<<<<< HEAD
 
 	// 7. Post-Content Initialization: Set initial values now that the window content is set.
 	// These calls will trigger OnChanged, but logSystem is now guarded.
@@ -293,6 +391,24 @@ func main() {
 		runOnMain(func() { convertFormatSelect.SetSelected(globalState.ConvertDestFormat) })
 	}
 
+=======
+	
+	// 7. Post-Content Initialization: Set initial values now that the window content is set.
+    // These calls will trigger OnChanged, but logSystem is now guarded.
+    if themeSelect != nil {
+	    runOnMain(func() { themeSelect.SetSelected(globalState.CurrentThemeName) })
+    }
+    if downloadFormatSelect != nil {
+	    runOnMain(func() { downloadFormatSelect.SetSelected(globalState.DownloadFormat) })
+    }
+    if downloadQualitySelect != nil {
+	    runOnMain(func() { downloadQualitySelect.SetSelected(globalState.Quality) })
+    }
+    if convertFormatSelect != nil {
+	    runOnMain(func() { convertFormatSelect.SetSelected(globalState.ConvertDestFormat) })
+    }
+	
+>>>>>>> 384a0a11dc78403475f1423e4ae5f67d7082ac0f
 	logSystem("Welcome to " + AppTitle)
 	logSystem("Engine initialized. Ready for operations.")
 
@@ -300,13 +416,379 @@ func main() {
 }
 
 // =================================================================================
+<<<<<<< HEAD
 // LOGIC IMPLEMENTATION
 // =================================================================================
 
+=======
+// UI BUILDERS
+// =================================================================================
+
+func buildDownloaderTab() fyne.CanvasObject {
+	// -- Header --
+	title := canvas.NewText("Media Downloader", hexToColor(globalTheme.CurrentPalette.Mauve))
+	title.TextSize = 24
+	title.TextStyle = fyne.TextStyle{Bold: true}
+	
+	subtitle := widget.NewLabel("Powered by yt-dlp")
+	
+	// -- Inputs --
+	urlEntry := widget.NewEntry()
+	urlEntry.SetPlaceHolder("Paste URL from YouTube, Twitch, Twitter, etc...")
+	urlEntry.OnChanged = func(s string) { globalState.DownloadURL = s }
+
+	// -- Config Grid --
+	
+	// Format
+	downloadFormatSelect = widget.NewSelect([]string{
+		"Video (MP4)", "Video (MKV)", "Video (WebM)",
+		"Audio (MP3)", "Audio (M4A)", "Audio (WAV)", "Audio (FLAC)",
+		"Thumbnail Only (JPG)",
+	}, func(s string) {
+		globalState.DownloadFormat = s
+	})
+
+	// Quality
+	downloadQualitySelect = widget.NewSelect([]string{"Best", "4K", "1440p", "1080p", "720p", "480p", "Worst"}, func(s string) {
+		globalState.Quality = s
+	})
+
+	// Options
+	checkMeta := widget.NewCheck("Embed Metadata", func(b bool) { globalState.EmbedMetadata = b })
+	checkMeta.SetChecked(true)
+	
+	checkThumb := widget.NewCheck("Embed Thumbnail (Video)", func(b bool) { globalState.EmbedThumbnail = b })
+	checkThumb.SetChecked(true)
+	
+	checkSubs := widget.NewCheck("Download Subtitles", func(b bool) { globalState.EmbedSubs = b })
+	
+	// Path
+	pathEntry := widget.NewEntry()
+	pathEntry.SetText(globalState.DownloadPath)
+	pathBtn := widget.NewButtonWithIcon("", theme.FolderOpenIcon(), func() {
+		dialog.ShowFolderOpen(func(uri fyne.ListableURI, err error) {
+			if err == nil && uri != nil {
+				pathEntry.SetText(uri.Path())
+				globalState.DownloadPath = uri.Path()
+			}
+		}, globalWindow)
+	})
+
+	// -- Action Button --
+	dlBtn := widget.NewButtonWithIcon("START DOWNLOAD", theme.DownloadIcon(), nil)
+	dlBtn.Importance = widget.HighImportance
+	dlBtn.OnTapped = func() {
+		if globalState.IsBusy {
+			return
+		}
+		if globalState.DownloadURL == "" {
+			dialog.ShowError(fmt.Errorf("URL cannot be empty"), globalWindow)
+			return
+		}
+		
+		globalState.IsBusy = true
+		dlBtn.Disable()
+		progressBar.SetValue(0)
+		statusLabel.SetText("Initializing download...")
+		
+		go func() {
+			err := performDownload()
+			globalState.IsBusy = false
+			
+			// Always schedule UI updates
+			runOnMain(func() {
+				dlBtn.Enable()
+				if err != nil {
+					logSystem("ERROR: " + err.Error())
+					statusLabel.SetText("Download Failed")
+				} else {
+					logSystem("Download sequence completed.")
+					statusLabel.SetText("Download Complete")
+					progressBar.SetValue(1.0)
+					addToHistory(globalState.DownloadURL + " (" + globalState.DownloadFormat + ")")
+				}
+			})
+		}()
+	}
+
+	// Layout
+	formContainer := container.NewVBox(
+		widget.NewLabel("Source URL"),
+		urlEntry,
+		widget.NewSeparator(),
+		widget.NewLabel("Configuration"),
+		container.NewGridWithColumns(2,
+			container.NewVBox(widget.NewLabel("Format"), downloadFormatSelect),
+			container.NewVBox(widget.NewLabel("Quality"), downloadQualitySelect),
+		),
+		widget.NewSeparator(),
+		widget.NewLabel("Post-Processing"),
+		container.NewHBox(checkMeta, checkThumb, checkSubs),
+		widget.NewSeparator(),
+		widget.NewLabel("Output Directory"),
+		container.NewBorder(nil, nil, nil, pathBtn, pathEntry),
+		layout.NewSpacer(),
+		dlBtn,
+	)
+
+	return container.NewPadded(container.NewBorder(
+		container.NewVBox(title, subtitle, widget.NewSeparator()),
+		nil, nil, nil,
+		formContainer,
+	))
+}
+
+func buildConverterTab() fyne.CanvasObject {
+	title := canvas.NewText("File Converter", hexToColor(globalTheme.CurrentPalette.Green))
+	title.TextSize = 24
+	title.TextStyle = fyne.TextStyle{Bold: true}
+
+	// Input File
+	inputLabel := widget.NewLabel("No file selected")
+	inputLabel.Wrapping = fyne.TextWrapBreak
+	
+	selectFileBtn := widget.NewButton("Select Input File", func() {
+		fd := dialog.NewFileOpen(func(reader fyne.URIReadCloser, err error) {
+			if err == nil && reader != nil {
+				globalState.ConvertSourceFile = reader.URI().Path()
+				inputLabel.SetText("Selected: " + filepath.Base(globalState.ConvertSourceFile))
+			}
+		}, globalWindow)
+		fd.Show()
+	})
+
+	// Target Format
+	convertFormatSelect = widget.NewSelect([]string{"mp3", "wav", "aac", "flac", "mp4", "mkv", "avi", "gif", "webm"}, func(s string) {
+		globalState.ConvertDestFormat = s
+	})
+
+	// Convert Button
+	convertBtn := widget.NewButtonWithIcon("CONVERT NOW", theme.MediaPlayIcon(), nil)
+	convertBtn.Importance = widget.HighImportance
+	convertBtn.OnTapped = func() {
+		if globalState.IsBusy { return }
+		if globalState.ConvertSourceFile == "" {
+			dialog.ShowError(fmt.Errorf("Please select a file first"), globalWindow)
+			return
+		}
+
+		globalState.IsBusy = true
+		
+		// Schedule UI updates
+		runOnMain(func() {
+			convertBtn.Disable()
+			progressBar.SetValue(0)
+			statusLabel.SetText("Converting...")
+		})
+
+		go func() {
+			err := performConversion()
+			globalState.IsBusy = false
+			
+			// Always schedule UI updates
+			runOnMain(func() {
+				convertBtn.Enable()
+				if err != nil {
+					logSystem("Conversion Error: " + err.Error())
+					statusLabel.SetText("Conversion Failed")
+				} else {
+					statusLabel.SetText("Conversion Complete")
+					progressBar.SetValue(1.0)
+					addToHistory("Converted: " + filepath.Base(globalState.ConvertSourceFile) + " -> " + globalState.ConvertDestFormat)
+				}
+			})
+		}()
+	}
+
+	return container.NewPadded(container.NewVBox(
+		title,
+		widget.NewSeparator(),
+		widget.NewLabel("1. Input File"),
+		selectFileBtn,
+		inputLabel,
+		widget.NewSeparator(),
+		widget.NewLabel("2. Target Format"),
+		convertFormatSelect,
+		widget.NewSeparator(),
+		layout.NewSpacer(),
+		convertBtn,
+	))
+}
+
+func buildHistoryTab() fyne.CanvasObject {
+	historyData = []string{}
+	historyList = widget.NewList(
+		func() int { return len(historyData) },
+		func() fyne.CanvasObject {
+			return container.NewHBox(widget.NewIcon(theme.FileIcon()), widget.NewLabel("Template"))
+		},
+		func(i widget.ListItemID, o fyne.CanvasObject) {
+			box := o.(*fyne.Container)
+			label := box.Objects[1].(*widget.Label)
+			label.SetText(historyData[i])
+		},
+	)
+	
+	clearBtn := widget.NewButtonWithIcon("Clear History", theme.DeleteIcon(), func() {
+		historyData = []string{}
+		historyList.Refresh()
+	})
+
+	return container.NewBorder(
+		widget.NewLabelWithStyle("Session History", fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
+		container.NewPadded(clearBtn),
+		nil, nil,
+		historyList,
+	)
+}
+
+func buildSettingsTab() fyne.CanvasObject {
+	// Theme Selector
+	themeSelect = widget.NewSelect([]string{"Latte", "Frappe", "Macchiato", "Mocha"}, func(s string) {
+		globalTheme.SetFlavor(s)
+		globalApp.Settings().SetTheme(globalTheme)
+		
+		// Refreshing the window content ensures colors update everywhere
+		if globalWindow.Content() != nil {
+			globalWindow.Content().Refresh()
+		}
+		logSystem("Theme switched to: " + s)
+	})
+
+	// Binary Check
+	checkBtn := widget.NewButton("Check Dependencies", func() {
+		_, errY := exec.LookPath("yt-dlp")
+		_, errF := exec.LookPath("ffmpeg")
+		_, errA := exec.LookPath("aria2c") // Check aria2c as well
+		
+		msg := "Dependencies Status:\n"
+		if errY == nil { msg += "yt-dlp found\n" } else { msg += "yt-dlp NOT found\n" }
+		if errF == nil { msg += "ffmpeg found\n" } else { msg += "ffmpeg NOT found\n" }
+		if errA == nil { msg += "aria2c found (Multi-thread acceleration available)\n" } else { msg += "aria2c NOT found (Single-thread download)\n" }
+		
+		dialog.ShowInformation("System Check", msg, globalWindow)
+	})
+
+	return container.NewPadded(container.NewVBox(
+		widget.NewLabelWithStyle("Settings", fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
+		widget.NewSeparator(),
+		widget.NewLabel("Appearance"),
+		container.NewGridWithColumns(2, widget.NewLabel("Theme Flavor"), themeSelect),
+		widget.NewSeparator(),
+		widget.NewLabel("System"),
+		checkBtn,
+		widget.NewSeparator(),
+		widget.NewLabel("About"),
+		widget.NewLabel("Catppuccin Downloader "+AppVersion),
+		widget.NewHyperlink("Visit Catppuccin", parseURL("https://github.com/catppuccin/catppuccin")),
+	))
+}
+
+// =================================================================================
+// LOGIC IMPLEMENTATION
+// =================================================================================
+
+func performDownload() error {
+	logSystem("Preparing download for: " + globalState.DownloadURL)
+
+	// 1. Build Arguments
+	args := []string{"--newline", "--no-colors"}
+	
+	// Speed optimization: Use external downloader if available
+    _, errAria := exec.LookPath("aria2c")
+    if errAria == nil {
+        logSystem("aria2c found. Enabling multi-threaded download acceleration (-x16 -k1M).")
+        args = append(args, "--external-downloader", "aria2c")
+        // -x16: 16 connections, -k1M: chunk size 1MB (aggressive settings)
+        args = append(args, "--external-downloader-args", "-x16 -k1M")
+    }
+
+	// Output Path
+	outTmpl := filepath.Join(globalState.DownloadPath, "%(title)s.%(ext)s")
+	args = append(args, "-o", outTmpl)
+
+	// Format Selection
+	if strings.Contains(globalState.DownloadFormat, "Audio") {
+		args = append(args, "-x") // Extract audio
+		
+		audioFmt := "mp3" // Default
+		if strings.Contains(globalState.DownloadFormat, "M4A") { audioFmt = "m4a" }
+		if strings.Contains(globalState.DownloadFormat, "WAV") { audioFmt = "wav" }
+		if strings.Contains(globalState.DownloadFormat, "FLAC") { audioFmt = "flac" }
+		
+		args = append(args, "--audio-format", audioFmt)
+		args = append(args, "--audio-quality", "0") // Best quality
+		
+	} else if strings.Contains(globalState.DownloadFormat, "Thumbnail") {
+		args = append(args, "--write-thumbnail", "--skip-download")
+		args = append(args, "--convert-thumbnails", "jpg")
+	} else {
+		// Video
+		args = append(args, "--merge-output-format", "mp4") // Merge into container
+		
+		// Quality Logic
+		qualityArg := "bestvideo+bestaudio/best"
+		switch globalState.Quality {
+		case "4K": qualityArg = "bestvideo[height<=2160]+bestaudio/best[height<=2160]"
+		case "1440p": qualityArg = "bestvideo[height<=1440]+bestaudio/best[height<=1440]"
+		case "1080p": qualityArg = "bestvideo[height<=1080]+bestaudio/best[height<=1080]"
+		case "720p": qualityArg = "bestvideo[height<=720]+bestaudio/best[height<=720]"
+		case "480p": qualityArg = "bestvideo[height<=480]+bestaudio/best[height<=480]"
+		case "Worst": qualityArg = "worst"
+		}
+		args = append(args, "-f", qualityArg)
+	}
+
+	// Metadata
+	if globalState.EmbedMetadata { args = append(args, "--add-metadata") }
+	if globalState.EmbedThumbnail && !strings.Contains(globalState.DownloadFormat, "Thumbnail") { args = append(args, "--embed-thumbnail") }
+	if globalState.EmbedSubs { args = append(args, "--write-auto-sub", "--sub-lang", "en", "--embed-subs") }
+
+	args = append(args, globalState.DownloadURL)
+
+	// 2. Execution Wrapper
+	return runCommandWithProgress("yt-dlp", args...)
+}
+
+func performConversion() error {
+	inputFile := globalState.ConvertSourceFile
+	ext := filepath.Ext(inputFile)
+	outputFile := strings.TrimSuffix(inputFile, ext) + "_converted." + globalState.ConvertDestFormat
+
+	logSystem(fmt.Sprintf("Converting %s -> %s", inputFile, outputFile))
+
+	args := []string{"-i", inputFile, "-y"} // -y to overwrite
+	
+	// Smart conversion flags
+	switch globalState.ConvertDestFormat {
+	case "mp3":
+		args = append(args, "-q:a", "0", "-map", "a")
+	case "gif":
+		args = append(args, "-vf", "fps=10,scale=320:-1:flags=lanczos", "-c:v", "gif")
+	case "mp4":
+		args = append(args, "-c:v", "libx264", "-c:a", "aac", "-strict", "experimental")
+	}
+	
+	args = append(args, outputFile)
+
+	return runCommandWithProgress("ffmpeg", args...)
+}
+
+// runOnMain is a small helper that executes a function intended for the UI thread.
+// In this simplified setup it just calls f() directly so the code compiles on
+// older Fyne versions that do not provide App.Schedule or Driver().RunOnMain.
+func runOnMain(f func()) {
+	if f != nil {
+		f()
+	}
+}
+
+>>>>>>> 384a0a11dc78403475f1423e4ae5f67d7082ac0f
 // runCommandWithProgress executes a command and parses its output for progress bars
 // It now includes UI throttling and log filtering.
 func runCommandWithProgress(bin string, args ...string) error {
 	logSystem(fmt.Sprintf("CMD: %s %v", bin, args))
+<<<<<<< HEAD
 
 	cmd := exec.Command(bin, args...)
 
@@ -330,17 +812,47 @@ func runCommandWithProgress(bin string, args ...string) error {
 	// Progress Regex for ffmpeg spam lines: frame=, size=, time=, bitrate=, speed=
 	reFFmpegProgress := regexp.MustCompile(`(frame=|size=|time=|bitrate=|speed=)`)
 
+=======
+	
+	cmd := exec.Command(bin, args...)
+	
+	// Pipes
+	stdout, _ := cmd.StdoutPipe()
+	stderr, _ := cmd.StderrPipe()
+	
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+	
+	// Parsers
+	var wg sync.WaitGroup
+	wg.Add(2)
+	
+	// Throttling setup: Only update UI every 500ms (0.5s)
+	lastProgressUpdate := time.Now()
+	
+	// Progress Regex for yt-dlp: [download]  45.0%
+	reProgress := regexp.MustCompile(`\[download\]\s+(\d+\.\d+)%`)
+    // Progress Regex for ffmpeg spam lines: frame=, size=, time=, bitrate=, speed=
+    reFFmpegProgress := regexp.MustCompile(`(frame=|size=|time=|bitrate=|speed=)`)
+	
+>>>>>>> 384a0a11dc78403475f1423e4ae5f67d7082ac0f
 	// Goroutine to handle STDOUT (yt-dlp progress)
 	go func() {
 		defer wg.Done()
 		scanner := bufio.NewScanner(stdout)
 		for scanner.Scan() {
 			line := scanner.Text()
+<<<<<<< HEAD
 
+=======
+			
+>>>>>>> 384a0a11dc78403475f1423e4ae5f67d7082ac0f
 			// Detect Progress
 			matches := reProgress.FindStringSubmatch(line)
 			if len(matches) > 1 {
 				p, _ := strconv.ParseFloat(matches[1], 64)
+<<<<<<< HEAD
 
 				// Throttle UI update: only update if 500ms passed since last update
 				if time.Since(lastProgressUpdate) > 500*time.Millisecond {
@@ -352,6 +864,19 @@ func runCommandWithProgress(bin string, args ...string) error {
 						statusLabel.SetText(fmt.Sprintf("Downloading... %.1f%%", p))
 					})
 				}
+=======
+                
+                // Throttle UI update: only update if 500ms passed since last update
+                if time.Since(lastProgressUpdate) > 500*time.Millisecond {
+                    lastProgressUpdate = time.Now()
+                    
+                    // CRITICAL: Schedule UI update on the main Fyne thread
+                    runOnMain(func() {
+                        progressBar.SetValue(p / 100.0)
+                        statusLabel.SetText(fmt.Sprintf("Downloading... %.1f%%", p))
+                    })
+                }
+>>>>>>> 384a0a11dc78403475f1423e4ae5f67d7082ac0f
 			} else {
 				// Only log non-progress lines to avoid spam
 				if !strings.HasPrefix(line, "[download]") {
@@ -360,13 +885,18 @@ func runCommandWithProgress(bin string, args ...string) error {
 			}
 		}
 	}()
+<<<<<<< HEAD
 
+=======
+	
+>>>>>>> 384a0a11dc78403475f1423e4ae5f67d7082ac0f
 	// Goroutine to handle STDERR (FFmpeg logs and other errors)
 	go func() {
 		defer wg.Done()
 		scanner := bufio.NewScanner(stderr)
 		for scanner.Scan() {
 			line := scanner.Text()
+<<<<<<< HEAD
 
 			// CRITICAL FIX: Filter out noisy FFmpeg progress/status lines (e.g., from merging/converting)
 			if reFFmpegProgress.MatchString(line) {
@@ -378,10 +908,66 @@ func runCommandWithProgress(bin string, args ...string) error {
 		}
 	}()
 
+=======
+            
+            // CRITICAL FIX: Filter out noisy FFmpeg progress/status lines (e.g., from merging/converting)
+            if reFFmpegProgress.MatchString(line) {
+                // Ignore spammy progress lines to prevent UI slowdown
+                continue
+            }
+            
+			logSystem("[stderr] " + line)
+		}
+	}()
+	
+>>>>>>> 384a0a11dc78403475f1423e4ae5f67d7082ac0f
 	wg.Wait()
 	return cmd.Wait()
 }
 
+<<<<<<< HEAD
+=======
+// =================================================================================
+// HELPER FUNCTIONS
+// =================================================================================
+
+func logSystem(msg string) {
+	// CRITICAL FIX: Ensure the window is ready before proceeding.
+	if !isWindowReady || consoleLog == nil {
+		return
+	}
+	
+	ts := time.Now().Format("15:04:05")
+	formatted := fmt.Sprintf("[%s] %s", ts, msg)
+	
+	// CRITICAL: Schedule UI update on the main Fyne thread for thread safety and asynchronous writing
+	runOnMain(func() {
+		// Append text
+		consoleLog.SetText(consoleLog.Text + formatted + "\n")
+		
+		// Set the cursor to the bottom for auto-scrolling
+		consoleLog.CursorRow = len(strings.Split(consoleLog.Text, "\n"))
+		
+		// Refresh only the widget
+		consoleLog.Refresh() 
+	})
+}
+
+func addToHistory(item string) {
+	historyData = append(historyData, item)
+	
+	// Always schedule list refresh
+	runOnMain(func() {
+		historyList.Refresh()
+	})
+}
+
+func parseURL(urlStr string) *url.URL {
+	u, _ := url.Parse(urlStr)
+	return u
+}
+
+>>>>>>> 384a0a11dc78403475f1423e4ae5f67d7082ac0f
 // Mock JSON saving for history (Optional Extension)
 type HistoryFile struct {
 	Items []string `json:"items"`
@@ -389,9 +975,13 @@ type HistoryFile struct {
 
 func saveHistory() {
 	f, err := os.Create("history.json")
+<<<<<<< HEAD
 	if err != nil {
 		return
 	}
+=======
+	if err != nil { return }
+>>>>>>> 384a0a11dc78403475f1423e4ae5f67d7082ac0f
 	defer f.Close()
 	json.NewEncoder(f).Encode(HistoryFile{Items: historyData})
 }
