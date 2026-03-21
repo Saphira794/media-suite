@@ -18,7 +18,6 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-// Debounced logging to reduce UI update frequency and CPU usage.
 var (
 	logQueue          []string
 	logFlushMu        sync.Mutex
@@ -26,18 +25,13 @@ var (
 	logFlushInterval  = 250 * time.Millisecond
 )
 
-// runOnMain is a small helper that executes a function intended for the UI thread.
-// In this simplified setup it just calls f() directly so the code compiles on
-// older Fyne versions that do not provide App.Schedule or Driver().RunOnMain.
 func runOnMain(f func()) {
 	if f != nil {
 		f()
 	}
 }
 
-// logSystem logs a message to the console with debounced UI updates.
 func logSystem(msg string) {
-	// CRITICAL FIX: Ensure the window is ready before proceeding.
 	if !isWindowReady || consoleLog == nil {
 		return
 	}
@@ -45,7 +39,6 @@ func logSystem(msg string) {
 	ts := time.Now().Format("15:04:05")
 	formatted := fmt.Sprintf("[%s] %s", ts, msg)
 
-	// Add to the queue and schedule a flush if not already scheduled.
 	logFlushMu.Lock()
 	logQueue = append(logQueue, formatted)
 	if !logFlushScheduled {
@@ -57,7 +50,6 @@ func logSystem(msg string) {
 			logQueue = nil
 			logFlushScheduled = false
 			logFlushMu.Unlock()
-			// Schedule UI update on the main Fyne thread
 			runOnMain(func() {
 				if consoleLog != nil {
 					consoleLog.SetText(consoleLog.Text + batch + "\n")
@@ -70,54 +62,55 @@ func logSystem(msg string) {
 	logFlushMu.Unlock()
 }
 
-// addToHistory adds an item to the history and refreshes the history list.
 func addToHistory(item string) {
 	historyData = append(historyData, item)
 
-	// Always schedule list refresh
 	runOnMain(func() {
 		historyList.Refresh()
 	})
 }
 
-// parseURL parses a URL string and returns a URL pointer.
 func parseURL(urlStr string) *url.URL {
 	u, _ := url.Parse(urlStr)
 	return u
 }
 
-// UI Builders
-
 func buildDownloaderTab() fyne.CanvasObject {
-	// -- Header --
 	title := canvas.NewText("Media Downloader", hexToColor(globalTheme.CurrentPalette.Mauve))
 	title.TextSize = 24
 	title.TextStyle = fyne.TextStyle{Bold: true}
 
 	subtitle := widget.NewLabel("Powered by yt-dlp")
 
-	// -- Inputs --
 	urlEntry := widget.NewEntry()
 	urlEntry.SetPlaceHolder("Paste URL from YouTube, Twitch, Twitter, etc...")
 	urlEntry.OnChanged = func(s string) { globalState.DownloadURL = s }
 
-	// -- Config Grid --
-
-	// Format
 	downloadFormatSelect = widget.NewSelect([]string{
 		"Video (MP4)", "Video (MKV)", "Video (WebM)",
 		"Audio (MP3)", "Audio (M4A)", "Audio (WAV)", "Audio (FLAC)",
 		"Thumbnail Only (JPG)",
 	}, func(s string) {
 		globalState.DownloadFormat = s
+
+		isAudioOrThumb := strings.Contains(s, "Audio") || strings.Contains(s, "Thumbnail")
+		if isAudioOrThumb {
+			globalState.Quality = "Best"
+			if downloadQualitySelect != nil {
+				downloadQualitySelect.SetSelected("Best")
+				downloadQualitySelect.Disable()
+			}
+		} else {
+			if downloadQualitySelect != nil {
+				downloadQualitySelect.Enable()
+			}
+		}
 	})
 
-	// Quality
 	downloadQualitySelect = widget.NewSelect([]string{"Best", "4K", "1440p", "1080p", "720p", "480p", "Worst"}, func(s string) {
 		globalState.Quality = s
 	})
 
-	// Options
 	checkMeta := widget.NewCheck("Embed Metadata", func(b bool) { globalState.EmbedMetadata = b })
 	checkMeta.SetChecked(true)
 
@@ -126,7 +119,6 @@ func buildDownloaderTab() fyne.CanvasObject {
 
 	checkSubs := widget.NewCheck("Download Subtitles", func(b bool) { globalState.EmbedSubs = b })
 
-	// Path
 	pathEntry := widget.NewEntry()
 	pathEntry.SetText(globalState.DownloadPath)
 	pathBtn := widget.NewButtonWithIcon("", theme.FolderOpenIcon(), func() {
@@ -138,7 +130,6 @@ func buildDownloaderTab() fyne.CanvasObject {
 		}, globalWindow)
 	})
 
-	// -- Action Button --
 	dlBtn := widget.NewButtonWithIcon("START DOWNLOAD", theme.DownloadIcon(), nil)
 	dlBtn.Importance = widget.HighImportance
 	dlBtn.OnTapped = func() {
@@ -159,7 +150,6 @@ func buildDownloaderTab() fyne.CanvasObject {
 			err := performDownload()
 			globalState.IsBusy = false
 
-			// Always schedule UI updates
 			runOnMain(func() {
 				dlBtn.Enable()
 				if err != nil {
@@ -175,7 +165,6 @@ func buildDownloaderTab() fyne.CanvasObject {
 		}()
 	}
 
-	// Layout
 	formContainer := container.NewVBox(
 		widget.NewLabel("Source URL"),
 		urlEntry,
@@ -207,7 +196,6 @@ func buildConverterTab() fyne.CanvasObject {
 	title.TextSize = 24
 	title.TextStyle = fyne.TextStyle{Bold: true}
 
-	// Input File
 	inputLabel := widget.NewLabel("No file selected")
 	inputLabel.Wrapping = fyne.TextWrapBreak
 
@@ -221,12 +209,10 @@ func buildConverterTab() fyne.CanvasObject {
 		fd.Show()
 	})
 
-	// Target Format
 	convertFormatSelect = widget.NewSelect([]string{"mp3", "wav", "aac", "flac", "mp4", "mkv", "avi", "gif", "webm"}, func(s string) {
 		globalState.ConvertDestFormat = s
 	})
 
-	// Convert Button
 	convertBtn := widget.NewButtonWithIcon("CONVERT NOW", theme.MediaPlayIcon(), nil)
 	convertBtn.Importance = widget.HighImportance
 	convertBtn.OnTapped = func() {
@@ -240,7 +226,6 @@ func buildConverterTab() fyne.CanvasObject {
 
 		globalState.IsBusy = true
 
-		// Schedule UI updates
 		runOnMain(func() {
 			convertBtn.Disable()
 			progressBar.SetValue(0)
@@ -251,7 +236,6 @@ func buildConverterTab() fyne.CanvasObject {
 			err := performConversion()
 			globalState.IsBusy = false
 
-			// Always schedule UI updates
 			runOnMain(func() {
 				convertBtn.Enable()
 				if err != nil {
@@ -309,23 +293,20 @@ func buildHistoryTab() fyne.CanvasObject {
 }
 
 func buildSettingsTab() fyne.CanvasObject {
-	// Theme Selector
 	themeSelect = widget.NewSelect([]string{"Latte", "Frappe", "Macchiato", "Mocha"}, func(s string) {
 		globalTheme.SetFlavor(s)
 		globalApp.Settings().SetTheme(globalTheme)
 
-		// Refreshing the window content ensures colors update everywhere
 		if globalWindow.Content() != nil {
 			globalWindow.Content().Refresh()
 		}
 		logSystem("Theme switched to: " + s)
 	})
 
-	// Binary Check
 	checkBtn := widget.NewButton("Check Dependencies", func() {
 		_, errY := exec.LookPath("yt-dlp")
 		_, errF := exec.LookPath("ffmpeg")
-		_, errA := exec.LookPath("aria2c") // Check aria2c as well
+		_, errA := exec.LookPath("aria2c")
 
 		msg := "Dependencies Status:\n"
 		if errY == nil {
@@ -357,7 +338,7 @@ func buildSettingsTab() fyne.CanvasObject {
 		checkBtn,
 		widget.NewSeparator(),
 		widget.NewLabel("About"),
-		widget.NewLabel("Catppuccin Downloader "+AppVersion),
-		widget.NewHyperlink("Visit Catppuccin", parseURL("https://github.com/catppuccin/catppuccin")),
+		widget.NewLabel("Media Suite "+AppVersion),
+		widget.NewHyperlink("Visit Repo", parseURL("https://github.com/Saphira794/media-suite")),
 	))
 }

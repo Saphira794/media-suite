@@ -6,31 +6,25 @@ import (
 	"strings"
 )
 
-// performDownload handles the download process using yt-dlp.
 func performDownload() error {
 	logSystem("Preparing download for: " + globalState.DownloadURL)
 
-	// 1. Build Arguments
 	args := []string{"--newline", "--no-colors"}
 
-	// Speed optimization: Use external downloader if available
 	_, errAria := exec.LookPath("aria2c")
 	if errAria == nil {
 		logSystem("aria2c found. Enabling multi-threaded download acceleration (-x16 -k1M).")
 		args = append(args, "--external-downloader", "aria2c")
-		// -x16: 16 connections, -k1M: chunk size 1MB (aggressive settings)
 		args = append(args, "--external-downloader-args", "-x16 -k1M")
 	}
 
-	// Output Path
 	outTmpl := filepath.Join(globalState.DownloadPath, "%(title)s.%(ext)s")
 	args = append(args, "-o", outTmpl)
 
-	// Format Selection
 	if strings.Contains(globalState.DownloadFormat, "Audio") {
-		args = append(args, "-x") // Extract audio
+		args = append(args, "-x") 
 
-		audioFmt := "mp3" // Default
+		audioFmt := "mp3" 
 		if strings.Contains(globalState.DownloadFormat, "M4A") {
 			audioFmt = "m4a"
 		}
@@ -42,16 +36,14 @@ func performDownload() error {
 		}
 
 		args = append(args, "--audio-format", audioFmt)
-		args = append(args, "--audio-quality", "0") // Best quality
+		args = append(args, "--audio-quality", "0") 
 
 	} else if strings.Contains(globalState.DownloadFormat, "Thumbnail") {
 		args = append(args, "--write-thumbnail", "--skip-download")
 		args = append(args, "--convert-thumbnails", "jpg")
 	} else {
-		// Video
-		args = append(args, "--merge-output-format", "mp4") // Merge into container
+		args = append(args, "--merge-output-format", "mp4") 
 
-		// Quality Logic
 		qualityArg := "bestvideo+bestaudio/best"
 		switch globalState.Quality {
 		case "4K":
@@ -70,7 +62,6 @@ func performDownload() error {
 		args = append(args, "-f", qualityArg)
 	}
 
-	// Metadata
 	if globalState.EmbedMetadata {
 		args = append(args, "--add-metadata")
 	}
@@ -83,6 +74,6 @@ func performDownload() error {
 
 	args = append(args, globalState.DownloadURL)
 
-	// 2. Execution Wrapper
 	return runCommandWithProgress("yt-dlp", args...)
 }
+

@@ -6,7 +6,6 @@ import (
 	"strings"
 )
 
-// performConversion handles the file conversion process using ffmpeg.
 func performConversion() error {
 	inputFile := globalState.ConvertSourceFile
 	ext := filepath.Ext(inputFile)
@@ -14,9 +13,8 @@ func performConversion() error {
 
 	logSystem(fmt.Sprintf("Converting %s -> %s", inputFile, outputFile))
 
-	args := []string{"-i", inputFile, "-y"} // -y to overwrite
+	args := []string{"-i", inputFile, "-y"} 
 
-	// Smart conversion flags
 	switch globalState.ConvertDestFormat {
 	case "mp3":
 		args = append(args, "-q:a", "0", "-map", "a")
@@ -30,3 +28,4 @@ func performConversion() error {
 
 	return runCommandWithProgress("ffmpeg", args...)
 }
+
