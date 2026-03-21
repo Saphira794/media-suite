@@ -77,6 +77,6 @@ else {
     exit 1
 }
 
-WriteColor "==========================================" "Blue"
-WriteColor "Done! Run the app by typing: $TargetPath" "Blue"
-WriteColor "==========================================" "Blue"
+Write-Color "==========================================" "Blue"
+Write-Color "Done! Run the app by typing: $TargetPath" "Blue"
+Write-Color "==========================================" "Blue"
